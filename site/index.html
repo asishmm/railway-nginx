@@ -1,37 +1,211 @@
 <!DOCTYPE html>
-
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>NGINX on Railway</title>
-    <meta name="description" content="Choo Choo!" />
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Resume AI Optimizer</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    header {
+      background-color: #fff;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    header img {
+      height: 50px;
+    }
+    .hero {
+      width: 100%;
+      max-height: 300px;
+      overflow: hidden;
+    }
+    .hero img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .container h2 {
+      text-align: center;
+      color: #007BFF;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    .form-group input[type="file"],
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: block;
+      margin: 0 auto;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .progress {
+      width: 100%;
+      background-color: #ddd;
+      border-radius: 5px;
+      overflow: hidden;
+      margin: 20px 0;
+      display: none;
+    }
+    .progress-bar {
+      height: 30px;
+      width: 0%;
+      background-color: #28a745;
+      text-align: center;
+      line-height: 30px;
+      color: #fff;
+      transition: width 0.4s ease;
+    }
+    .download-container {
+      text-align: center;
+      margin-top: 20px;
+      display: none;
+    }
+    .download-container a {
+      text-decoration: none;
+      background-color: #007BFF;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+    .download-container a:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header with Logo -->
+  <header>
+    <img src="logo.png" alt="Logo">
+  </header>
 
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Hero Image -->
+  <div class="hero">
+    <img src="hero.jpg" alt="Hero Image">
+  </div>
 
-    <link rel="stylesheet" href="/styles.css?v=1.0" />
-  </head>
+  <!-- Main Container -->
+  <div class="container">
+    <h2>Optimize Your Resume with AI</h2>
+    <form id="resumeForm" action="https://primary-production-f9ef.up.railway.app/webhook-test/resume-opt" method="POST" enctype="multipart/form-data">
+      <!-- Resume Upload -->
+      <div class="form-group">
+        <label for="resumeUpload">Upload Your Resume (PDF, DOC, DOCX):</label>
+        <input type="file" id="resumeUpload" name="resume" accept=".pdf,.doc,.docx" required>
+      </div>
 
-  <body>
-    <main>
-      <img
-        src="https://railway.app/brand/logo-light.svg"
-        alt="Railway logo"
-        class="logo"
-      />
+      <!-- Job Description Paste Input -->
+      <div class="form-group">
+        <label for="jobTextField">Paste Job Description:</label>
+        <textarea id="jobTextField" name="jobText" rows="5" placeholder="Paste the job description here" required></textarea>
+      </div>
 
-      <h1>NGINX on Railway</h1>
+      <!-- Submit Button -->
+      <button type="submit">Optimize Resume</button>
+    </form>
 
-      <p>
-        Choo Choo! This is an example of an NGINX static site running on
-        Railway.
-        <a
-          href="https://github.com/railwayapp/starters/tree/master/examples/nginx"
-          >View source</a
-        >.
-      </p>
-    </main>
+    <!-- Progress Bar -->
+    <div class="progress" id="progressContainer">
+      <div class="progress-bar" id="progressBar">0%</div>
+    </div>
 
-    <script src="/script.js"></script>
-  </body>
+    <!-- Download Link -->
+    <div class="download-container" id="downloadContainer">
+      <a id="downloadLink" href="#" download="optimized_resume.pdf">Download Your Optimized Resume</a>
+    </div>
+  </div>
+
+  <script>
+    // Get references to DOM elements
+    const form = document.getElementById("resumeForm");
+    const progressContainer = document.getElementById("progressContainer");
+    const progressBar = document.getElementById("progressBar");
+    const downloadContainer = document.getElementById("downloadContainer");
+    const downloadLink = document.getElementById("downloadLink");
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      
+      // Reset UI: show progress bar, hide download link, set progress to 0
+      progressContainer.style.display = "block";
+      progressBar.style.width = "0%";
+      progressBar.textContent = "0%";
+      downloadContainer.style.display = "none";
+      
+      const formData = new FormData(form);
+      
+      // Start a simulated progress interval (since we don't receive intermediate updates)
+      let simulatedProgress = 0;
+      const progressTimer = setInterval(() => {
+        simulatedProgress += 1; // Increase by 5% every 500ms
+        if (simulatedProgress > 95) { 
+          simulatedProgress = 95; // Cap at 95% until final response
+        }
+        progressBar.style.width = simulatedProgress + "%";
+        progressBar.textContent = simulatedProgress + "%";
+      }, 500);
+      
+      // Submit the form to the n8n webhook
+      fetch(form.action, {
+        method: "POST",
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        clearInterval(progressTimer);
+        // When the response is received, update progress to 100%
+        progressBar.style.width = "100%";
+        progressBar.textContent = "100%";
+        
+        // Check if the response contains the download URL
+        if (data.updatedResumeUrl) {
+          downloadLink.href = data.updatedResumeUrl;
+          downloadContainer.style.display = "block";
+        } else {
+          alert("Workflow completed, but no download URL was provided.");
+        }
+      })
+      .catch(error => {
+        clearInterval(progressTimer);
+        console.error("Error:", error);
+        alert("An error occurred during submission.");
+      });
+    });
+  </script>
+</body>
 </html>
